@@ -56,46 +56,28 @@
 {
   const frameworkVotes = ['angular', 'react', 'react', 'angular', 'react', 'backbone'];
 
-  const tallyVotes = function (tally, item) {
-    if (!tally[item]) {
-      tally[item] = 1;
-    } else {
-      tally[item]++;
-    }
+  // As always, es6 is cooler. So is code golf
+  const tallyVotesES6 = (tally, framework) => {
+    tally[framework] = tally[framework] ? tally[framework] + 1 : 1;
     return tally;
-  }
+  };
 
-  var tally = frameworkVotes.reduce(tallyVotes, {});
-
-  // // As always, es6 is cooler. So is code golf
-  // const tallyVotesES6 = (tally, framework) => {
-  //   tally[framework] = tally[framework] ? tally[framework] + 1 : 1;
-  //   return tally;
-  // };
-
-  // var tally = frameworkVotes.reduce(tallyVotesES6, {});
+  const tally = frameworkVotes.reduce(tallyVotesES6, {});
 
   console.log('Vote Tally:', tally); // { angular: 2, react: 3, backbone: 1 }
 }
 
 // Map
 {
-  var valuesToDouble = [1, 11, 21, 1211, 111221];
+  const valuesToDouble = [1, 11, 21, 1211, 111221];
 
-  var doubler = function(accumulator, item) {
+  // notice that reducer function is inline
+  const doubleMap = valuesToDouble.reduce((output, num) => {
     accumulator.push(item * 2);
     return accumulator;
-  }
-
-  var doubleMap = valuesToDouble.reduce(doubler, []);
+  }, []);
 
   console.log('Lets go Dubs', doubleMap); // [2, 22, 42, 2422, 222442]
-
-  // ES6 version:
-  // const doubleMap = valuesToDouble.reduce((output, num) => {
-  //   accumulator.push(item * 2);
-  //   return accumulator;
-  // }, []);
 }
 
 // Filter
