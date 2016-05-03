@@ -71,7 +71,7 @@
 {
   const valuesToDouble = [1, 11, 21, 1211, 111221];
 
-  // notice that reducer function is inline
+  // Notice that reducer function is inline
   const doubleMap = valuesToDouble.reduce((output, num) => {
     accumulator.push(item * 2);
     return accumulator;
@@ -82,37 +82,32 @@
 
 // Filter
 {
-  var valuesToFilter = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const valuesToFilter = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  var findOdds = function(accumulator, item) {
-    if (item % 2 !== 0) {
+  // Moved reducer inline
+  const odds = valuesToFilter.reduce((accumulator, item) => {
+    if (item % 2) { // 0 is falsy
       accumulator.push(item);
     }
     return accumulator;
-  };
+  }, []);
 
-  var odds = valuesToFilter.reduce(findOdds, []); // [1,3,5,7,9]
-
-  console.log('Odd numbers:', odds);
+  console.log('Odd numbers:', odds); // [1,3,5,7,9]
 }
 
 // FilterMap with Reduce vs. Chaining 1
 {
-  var valuesToFilterMap = [2,5,7,9,10];
+  const valuesToFilterMap = [2,5,7,9,10];
 
-  var findOddsAndDouble = function(acc, item) {
-    if (item % 2 !== 0) {
-      acc.push(item * 2);
-    }
+  const oddsDoubled = valuesToFilterMap.reduce((acc, item) => {
+    item % 2 && acc.push(item * 2); // && works like a short circuit 'if'?
     return acc;
-  }
+  }, []);
 
-  var oddsDoubled = valuesToFilterMap.reduce(findOddsAndDouble, []);
-
-  console.log(oddsDoubled); // [10,14,18]
+  console.log('Doubled odds:', oddsDoubled); // [10,14,18]
 
   var oddsDoubledChained = valuesToFilterMap.filter(function(item) {
-    return item % 2 !== 0;
+    return !!item % 2; // !! is a handy bool converter. Also, its not necessary here
   }).map(function(item) {
     return item * 2;
   });
