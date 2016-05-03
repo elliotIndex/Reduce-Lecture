@@ -97,98 +97,72 @@
 
 // FilterMap with Reduce vs. Chaining 1
 {
-  const valuesToFilterMap = [2,5,7,9,10];
+  const values = [2,5,7,9,10];
 
-  const oddsDoubled = valuesToFilterMap.reduce((acc, item) => {
-    item % 2 && acc.push(item * 2); // && works like a short circuit 'if'?
+  const oddsDoubled = values.reduce((acc, item) => {
+    item % 2 && acc.push(item * 2); // && works like a short circuit 'if'
     return acc;
   }, []);
 
   console.log('Doubled odds:', oddsDoubled); // [10,14,18]
 
-  var oddsDoubledChained = valuesToFilterMap.filter(function(item) {
-    return !!item % 2; // !! is a handy bool converter. Also, its not necessary here
-  }).map(function(item) {
-    return item * 2;
-  });
+  // Arguably more readible, same result
+  const chained = values.filter(num => num % 2).map(oddNum => oddNum * 2);
 
-  console.log(oddsDoubledChained); // Still [10, 14, 18], and this is arguably more readible
+  console.log('Doubled odds (chained):', oddsDoubledChained); // Still [10, 14, 18]
 }
 
 // FilterMap with Reduce vs. Chaining 2
 {
-  var bigData = [];
-  for (var i = 0; i < 10000000; i++) { // Ten bajillion
+  const bigData = [];
+  for (let i = 0; i < 10000000; i++) { // Ten bajillion
     bigData.push(i);
   }
 
   console.time('BigDataChaining');
-  var bigDataChaining = bigData.filter(function(item) {
-    return item % 2 !== 0;
-  }).map(function(item) {
-    return item * 2;
-  });
+  const bigDataChaining = bigData.filter(num => num % 2).map(oddNum => oddNum * 2);
   console.timeEnd('BigDataChaining');
 
   console.time('BigDataReduce');
-  var bigDataReduce = bigData.reduce(function(acc, item) {
-    if (item % 2 !== 0) {
-      acc.push(item * 2);
-    }
-    return acc;
-  }, [])
+  const bigDataReduce = bigData.reduce((doubledOdds, num) => {
+    num % 2 && doubledOdds.push(num * 2)
+    return doubledOdds;
+  }, []);
   console.timeEnd('BigDataReduce');
 }
 
 // Other Reduce Args - Finding Mean with Reduce
 {
-  var testScores = [1, 2, 3, 4, 5, 6];
-  // var testScores = [96, 87, 64, 78, 54, 98];
-  var sum = function(acc, value) {
-    return acc + value;
-  }
+  const testScores = [96, 87, 64, 78, 54, 98];
+  const sum = (acc, value) => acc + value;
 
   console.log('Average test scores with sum:',
     testScores.reduce(sum, 0)/testScores.length); // 79.5
 
-  var findMean = function(acc, value, index, collection) {
-    var sum = acc + value;
-    if (index !== collection.length - 1) {
-      return sum;
-    }
-    return sum/collection.length;
-  }
-
-  // // We all love ternary operators
-  // var findMean = function(acc, value, index, collection) {
-  //   var sum = acc + value;
-  //   return collection.length !== index + 1 ? sum : sum / collection.length;
-  // }
-
+  // Pick your favorite
+  const findMean = (collection) => collection.reduce(sum, 0)/collection.length;
 
   console.log('Average test scores with reduce:',
-    testScores.reduce(findMean, 0)); // 79.5, all within the reduce!
+    findMean(collection)); // 79.5, all within the reduce!
 }
 
 // Common Mistakes with Reduce
 {
   // The "feature" of reduce defaulting the intial value to the first element in the collection is rarely useful...
-  var mistakeVals = [1, 2, 3];
+  const mistakeVals = [1, 2, 3];
 
-  var mistakeSum = function(acc, val) {
-    return acc + val;
-  }
+  const mistakeSum = (acc, val) => acc + val;
 
-  var mistakeValsSummedNoInitial = mistakeVals.reduce(mistakeSum);
-  var mistakeValsSummedWithInitial = mistakeVals.reduce(mistakeSum, 0);
-  console.log('Safe mistakes:',
+  const mistakeValsSummedNoInitial = mistakeVals.reduce(mistakeSum);
+  const mistakeValsSummedWithInitial = mistakeVals.reduce(mistakeSum, 0);
+  console.log('"Safe" mistakes:',
     mistakeValsSummedNoInitial,
     mistakeValsSummedWithInitial)
     // 6, 6 (despite the first not passing an initial value)
 
   // ...and almost always leads to unexpected results
-  var ironThrone = ['Stark', 'Stark', 'Lannister', 'Lannister', 'Lannister', 'Greyjoy'];
-  var mistakeTallyNoInit = function (tally, item) {
+  const ironThrone = ['Stark', 'Stark', 'Lannister', 'Lannister', 'Lannister', 'Greyjoy'];
+  const mistakeTallyNoInit = (tally, item) => {
     if (!tally[item]) {
       tally[item] = 1;
     } else {
@@ -196,11 +170,11 @@
     }
     return tally;
   }
-  var noInitialValue = ironThrone.reduce(mistakeTallyNoInit);
+  const noInitialValue = ironThrone.reduce(mistakeTallyNoInit); // no initial {}
   console.log('Who shall rule the seven kingdoms?', noInitialValue); // Stark
 
   // Failing to return your accumulator is the other most common mistake
-  var mistakeTallyNoAccReturn = function (tally, item) {
+  const mistakeTallyNoAccReturn = (tally, item) => {
     if (!tally[item]) {
       tally[item] = 1;
     } else {
@@ -213,91 +187,70 @@
 
 // Toy Problems...reduced!
 {
-  var findLongestWord = function(sentence) {
-    return sentence.split(' ').reduce(function(acc, word, index, wordArr) {
-      if (acc.length < word.length) {
-        acc = word;
-      }
-      return acc;
-    }, "");
-  }
-  var sentance = "I have come here to return accumulators and chew bubblegum...";
-  var longestWord = findLongestWord(sentance);
+  const findLongestWord = sentence => ( // es6 implicit return
+   sentence.split(' ').reduce((longestYet, word) =>
+    longestYet.length > word.length ? longestYet : word, '')
+  );
+  // note this could all be one one line:
+  const flw = s => s.split(' ').reduce((lw, w) => lw.length > w.length ? lw : w), '');
+  // but we like descriptive variables
+
+  const sentance = 'I have come here to return accumulators and chew bubblegum...';
+  const longestWord = flw(sentance);
   console.log('Longest Word', longestWord); // 'accumulators'
 }
 
 // Flatten
 {
-  var nestedArraysToFlatten = [[1,2,3],[4,5,6],[7,8,9]];
+  const nestedArraysToFlatten = [[1,2,3],[4,5,6],[7,8,9]];
 
-  var flatten = function(acc, arr) {
-    return acc.concat(arr);
-  }
+  const flatten = (flatArr, arr) => flatArr.concat(arr);
 
-  var flattened = nestedArraysToFlatten.reduce(flatten, []);
+  const flattened = nestedArraysToFlatten.reduce(flatten, []);
   console.log('Flattened arrs:', flattened); // [1,2,3,4,5,6,7,8,9]
 
   // multi level flatten:
-  var deepFlatten = function(acc, item) {
-    if (Array.isArray(item)) {
-      acc = acc.concat(item.reduce(deepFlatten, []));
+  const deepFlatten = (flatArr, itemOrArr) => {
+    if (Array.isArray(itemOrArr)) {
+      flatArr = flatArr.concat(itemOrArr.reduce(deepFlatten, [])); // recursion!
     } else {
-      acc.push(item);
+      flatArr.push(itemOrArr);
     }
-    return acc;
+    return flatArr;
   }
 
-  var deepNestedArrs = [1, [2, 3, [4, 'five', 6], [7, 'ate'], 9], [10], 'eleven']
-  var deepFlattened = deepNestedArrs.reduce(deepFlatten, []);
+  const deepNestedArrs = [1, [2, 3, [4, 'five', 6], [7, 'ate'], 9], [10], 'eleven']
+  // const deepFlattened = deepNestedArrs.reduce(deepFlatten, []);
+  const deepFlattened = deepFlatten([], deepNestedArrs);
   console.log('Deep Flattened arrs:', deepFlattened);
   // [1,2,3,4,'five',6,7,'ate',9, 10, 'eleven']
 }
 
 // FlatMap
 {
-  var techMentors = [{
+  const techMentors = [{
     name: 'Beth',
     age: 28,
-    likes: [
-      'Math',
-      'JavaScript',
-      'Ricochet Robots'
-    ]
+    likes: ['Math', 'JavaScript', 'Ricochet Robots']
   }, {
     name: 'Dan',
     age: 29,
-    likes: [
-      'Crickets',
-      'The Queen',
-      'Being Proper'
-    ]
+    likes: ['Crickets', 'The Queen', 'Being Proper']
   }, {
     name: 'Sunny',
     age: 25,
-    likes: [
-      'BitCoin',
-      'Meteor',
-      'Beth',
-    ]
+    likes: ['BitCoin', 'Meteor', 'Beth']
   }, {
     name: 'Zach',
     age: 28,
-    likes: [
-      'JavaScript',
-      'Bad Puns',
-      'Reduce',
-    ]
+    likes: ['JavaScript', 'Bad Puns', 'Reduce']
   }, {
     name: 'Magee',
     age: 36,
-    likes: [
-      'JavaScript',
-      'Dogs',
-      'Riding Motorcycles',
-    ]
+    likes: ['JavaScript', 'Dogs', 'Riding Motorcycles']
   }];
 
-  var mentorNamesAndAges = techMentors.reduce(function(namesAndAges, mentor) {
+  const mentorNamesAndAges = techMentors.reduce((namesAndAges, mentor) => {
     namesAndAges.names.push(mentor.name);
     namesAndAges.ages.push(mentor.age);
     return namesAndAges;
@@ -305,14 +258,9 @@
 
   console.log('Just names and ages:', mentorNamesAndAges);
 
-  var sortedMentorLikes = techMentors.reduce(function(likes, mentor, index, mentors) {
-    mentor.likes.forEach(function(like) {
-      if (likes.indexOf(like) === -1) {
-        likes.push(like);
-      }
-    });
-    return index !== mentors.length - 1 ? likes : likes.sort();
-  }, []);
+  const sortedMentorLikes = techMentors
+    .reduce((likes, mentor) => likes.concat(mentor.likes), [])
+    .sort();
 
   console.log('Sorted Mentor Likes:', sortedMentorLikes);
 }
