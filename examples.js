@@ -1,20 +1,63 @@
+// How Reduce Works
+{
+  var someArray = [4, 'six', 8];
+  var initialValue = '2';
+
+  someArray.reduce(function(accumulator, item, index, array) {
+    // do some logic with item and accumulator
+    // the value returned will be the accumulator in the next pass
+    return accumulator % item + index * array.length;
+    // the initial value is optional
+    // if not provided, the first item in the array is the initial value
+      // and the reduce starts on the second item
+  }, initialValue)
+
+  // Reduce is like a for loop with
+  // these are equivalent:
+  var numsToSum = [2,3,5,7,11,13];
+
+  var forLoopSum = 0;
+  for (var i = 0; i < numsToSum.length; i++) {
+    forLoopSum += numsToSum[i];
+  }
+
+  var reduceSum = numsToSum.reduce(function(sum, num) {
+    return sum + num;
+  })
+
+  console.log('Does forLoopSum === reduceSum?', forLoopSum === reduceSum);
+
+  // It looks even better in es6
+  const es6ReduceSum = numsToSum.reduce((sum, num) => sum + num);
+
+  console.log('Does forLoopSum === es6ReduceSum?', forLoopSum === es6ReduceSum);
+}
+
+
 // The Basics - Sum
 {
   var valuesToSum = [10, 12, 15];
-   
+
   var reducer = function(accumulator, item) {
     return accumulator + item;
   };
 
-  var initialValue = 10;
-  
-  var total = valuesToSum.reduce(reducer, initialValue); 
-  console.log(total); // 47
-  
-  var emptyValuestoSum = [];
-  var emptyTotal = emptyValuestoSum.reduce(reducer, initialValue); // 
+  var withoutInitialValue = valuesToSum.reduce(reducer);
+  console.log('sum without initial value:', withoutInitialValue); // 37
 
-  console.log(emptyTotal) // 10 (still works despite emptyValuestoSum being empty)
+  var initialValue = 10;
+
+  var withInitialValue = valuesToSum.reduce(reducer, initialValue);
+  console.log('sum with initial value', withInitialValue); // 47
+
+  // still works despite emptyValuestoSum being empty
+  var emptyValuestoSum = [];
+  var emptyTotal = emptyValuestoSum.reduce(reducer, initialValue); //
+
+  console.log('Sum of empty array w/ initialValue:', emptyTotal) // 10
+
+  // Will throw an error if you try to reduce with no initial value
+  // var emptyArrayReduce = [].reduce((aggregate, item) => 'u mad?');
 }
 
 // Transforming an Array into an Object
@@ -32,7 +75,15 @@
 
   var tally = frameworkVotes.reduce(tallyVotes, {});
 
-  console.log(tally); // { angular: 2, react: 3, backbone: 1 }
+  // // As always, es6 is cooler. So is code golf
+  // const tallyVotesES6 = (tally, framework) => {
+  //   tally[framework] = tally[framework] ? tally[framework] + 1 : 1;
+  //   return tally;
+  // };
+
+  // var tally = frameworkVotes.reduce(tallyVotesES6, {});
+
+  console.log('Vote Tally:', tally); // { angular: 2, react: 3, backbone: 1 }
 }
 
 // Map
@@ -45,8 +96,14 @@
   }
 
   var doubleMap = valuesToDouble.reduce(doubler, []);
-  
-  console.log(doubleMap); // [2, 22, 42, 2422, 222442]
+
+  console.log('Lets go Dubs', doubleMap); // [2, 22, 42, 2422, 222442]
+
+  // ES6 version:
+  // const doubleMap = valuesToDouble.reduce((output, num) => {
+  //   accumulator.push(item * 2);
+  //   return accumulator;
+  // }, []);
 }
 
 // Filter
@@ -61,6 +118,8 @@
   };
 
   var odds = valuesToFilter.reduce(findOdds, []); // [1,3,5,7,9]
+
+  console.log('Odd numbers:', odds);
 }
 
 // FilterMap with Reduce vs. Chaining 1
@@ -90,7 +149,7 @@
 // FilterMap with Reduce vs. Chaining 2
 {
   var bigData = [];
-  for (var i = 0; i < 10000000; i++) {
+  for (var i = 0; i < 10000000; i++) { // Ten bajillion
     bigData.push(i);
   }
 
@@ -114,13 +173,15 @@
 
 // Other Reduce Args - Finding Mean with Reduce
 {
-  var testScores = [96, 87, 64, 78, 54, 98];
+  var testScores = [1, 2, 3, 4, 5, 6];
+  // var testScores = [96, 87, 64, 78, 54, 98];
   var sum = function(acc, value) {
     return acc + value;
   }
 
-  console.log(testScores.reduce(sum, 0)/testScores.length); // 79.5
-  
+  console.log('Average test scores with sum:',
+    testScores.reduce(sum, 0)/testScores.length); // 79.5
+
   var findMean = function(acc, value, index, collection) {
     var sum = acc + value;
     if (index !== collection.length - 1) {
@@ -128,9 +189,16 @@
     }
     return sum/collection.length;
   }
-  
 
-  console.log(testScores.reduce(findMean, 0)); // 79.5, all within the reduce!
+  // // We all love ternary operators
+  // var findMean = function(acc, value, index, collection) {
+  //   var sum = acc + value;
+  //   return collection.length !== index + 1 ? sum : sum / collection.length;
+  // }
+
+
+  console.log('Average test scores with reduce:',
+    testScores.reduce(findMean, 0)); // 79.5, all within the reduce!
 }
 
 // Common Mistakes with Reduce
@@ -141,10 +209,13 @@
   var mistakeSum = function(acc, val) {
     return acc + val;
   }
-  
+
   var mistakeValsSummedNoInitial = mistakeVals.reduce(mistakeSum);
   var mistakeValsSummedWithInitial = mistakeVals.reduce(mistakeSum, 0);
-  console.log(mistakeValsSummedNoInitial, mistakeValsSummedWithInitial) // 6, 6 (despite the first not passing an initial value)
+  console.log('Safe mistakes:',
+    mistakeValsSummedNoInitial,
+    mistakeValsSummedWithInitial)
+    // 6, 6 (despite the first not passing an initial value)
 
   // ...and almost always leads to unexpected results
   var ironThrone = ['Stark', 'Stark', 'Lannister', 'Lannister', 'Lannister', 'Greyjoy'];
@@ -157,8 +228,8 @@
     return tally;
   }
   var noInitialValue = ironThrone.reduce(mistakeTallyNoInit);
-  console.log(noInitialValue); // Stark
-  
+  console.log('Who shall rule the seven kingdoms?', noInitialValue); // Stark
+
   // Failing to return your accumulator is the other most common mistake
   var mistakeTallyNoAccReturn = function (tally, item) {
     if (!tally[item]) {
@@ -181,9 +252,9 @@
       return acc;
     }, "");
   }
-
-  var longestWord = findLongestWord("I have come here to return accumulators and chew bubblegum..."); 
-  console.log(longestWord); // 'accumulators'
+  var sentance = "I have come here to return accumulators and chew bubblegum...";
+  var longestWord = findLongestWord(sentance);
+  console.log('Longest Word', longestWord); // 'accumulators'
 }
 
 // Flatten
@@ -195,7 +266,22 @@
   }
 
   var flattened = nestedArraysToFlatten.reduce(flatten, []);
-  console.log(flattened); // [1,2,3,4,5,6,7,8,9]
+  console.log('Flattened arrs:', flattened); // [1,2,3,4,5,6,7,8,9]
+
+  // multi level flatten:
+  var deepFlatten = function(acc, item) {
+    if (Array.isArray(item)) {
+      acc = acc.concat(item.reduce(deepFlatten, []));
+    } else {
+      acc.push(item);
+    }
+    return acc;
+  }
+
+  var deepNestedArrs = [1, [2, 3, [4, 'five', 6], [7, 'ate'], 9], [10], 'eleven']
+  var deepFlattened = deepNestedArrs.reduce(deepFlatten, []);
+  console.log('Deep Flattened arrs:', deepFlattened);
+  // [1,2,3,4,'five',6,7,'ate',9, 10, 'eleven']
 }
 
 // FlatMap
@@ -204,7 +290,7 @@
     name: 'Beth',
     age: 28,
     likes: [
-      'Math', 
+      'Math',
       'JavaScript',
       'Ricochet Robots'
     ]
@@ -247,8 +333,8 @@
     namesAndAges.ages.push(mentor.age);
     return namesAndAges;
   }, {names: [], ages: []});
-  
-  console.log(mentorNamesAndAges);
+
+  console.log('Just names and ages:', mentorNamesAndAges);
 
   var sortedMentorLikes = techMentors.reduce(function(likes, mentor, index, mentors) {
     mentor.likes.forEach(function(like) {
@@ -259,7 +345,7 @@
     return index !== mentors.length - 1 ? likes : likes.sort();
   }, []);
 
-  console.log(sortedMentorLikes);
+  console.log('Sorted Mentor Likes:', sortedMentorLikes);
 }
 
 // Pseudo-redux example
