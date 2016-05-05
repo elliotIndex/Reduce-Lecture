@@ -57,7 +57,7 @@
   console.log('Sum of empty array w/ initialValue:', emptyTotal) // 10
 
   // Will throw an error if you try to reduce with no initial value
-  // var emptyArrayReduce = [].reduce((aggregate, item) => 'u mad?');
+  var emptyArrayReduce = [].reduce((aggregate, item) => 'u mad?');
 }
 
 // Transforming an Array into an Object
@@ -76,10 +76,10 @@
   var tally = frameworkVotes.reduce(tallyVotes, {});
 
   // // As always, es6 is cooler. So is code golf
-  // const tallyVotesES6 = (tally, framework) => {
-  //   tally[framework] = tally[framework] ? tally[framework] + 1 : 1;
-  //   return tally;
-  // };
+  const tallyVotesES6 = (tally, framework) => {
+    tally[framework] = tally[framework] ? tally[framework] + 1 : 1;
+    return tally;
+  };
 
   // var tally = frameworkVotes.reduce(tallyVotesES6, {});
 
@@ -173,8 +173,8 @@
 
 // Other Reduce Args - Finding Mean with Reduce
 {
-  var testScores = [1, 2, 3, 4, 5, 6];
-  // var testScores = [96, 87, 64, 78, 54, 98];
+  // var testScores = [1, 2, 3, 4, 5, 6];
+  var testScores = [96, 87, 64, 78, 54, 98];
   var sum = function(acc, value) {
     return acc + value;
   }
@@ -347,7 +347,7 @@
 
   console.log('Sorted Mentor Likes:', sortedMentorLikes);
 }
-
+//
 // Pseudo-redux example
 {
   var counterReducer = function(state, action) {
